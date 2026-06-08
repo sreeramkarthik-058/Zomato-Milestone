@@ -34,6 +34,16 @@ ENV PORT=8000
 COPY . .
 RUN chmod +x docker-entrypoint.sh
 
+# Pre-download the dataset at build time so the first request is instant
+RUN python -c "from src.restaurant_recommender.ingestion.loader import load_raw_dataset; \
+    from src.restaurant_recommender.ingestion.normalizer import normalize_rows; \
+    from src.restaurant_recommender.store.restaurant_store import RestaurantStore; \
+    from pathlib import Path; \
+    rows = load_raw_dataset('ManikaSaini/zomato-restaurant-recommendation'); \
+    restaurants = normalize_rows(rows); \
+    store = RestaurantStore(); \
+    store.save_parquet(Path('./data/restaurants.parquet'), restaurants)"
+
 # Expose port (Railway sets PORT env var)
 EXPOSE 8000
 
