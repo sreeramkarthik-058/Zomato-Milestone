@@ -50,26 +50,13 @@ PROMPT_VERSION=v1
 
 ### Step 3: Configure Build & Start Commands
 
-1. Go to the **"Settings"** tab
-2. Set **Build Command**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Set **Start Command**:
-   ```bash
-   uvicorn src.restaurant_recommender.app.api:app --host 0.0.0.0 --port $PORT
-   ```
-4. Set **Python Version** to `3.11` or higher
+Do **not** set a custom Start Command in Railway — leave it blank. The `Dockerfile` handles everything via `docker-entrypoint.sh`, which starts uvicorn on port 8000. Setting a start command overrides the Dockerfile and breaks port resolution.
 
-### Step 4: Data Ingestion (First Deployment)
+The `railway.json` in the repo already configures the correct build settings.
 
-The first time the app runs on Railway, it needs to download and cache the dataset:
+### Step 4: Data Ingestion
 
-1. After deployment, the app will automatically ingest data on first API call
-2. Alternatively, trigger data ingestion via a Health Check or test API call:
-   ```bash
-   curl https://your-railway-url/api/health
-   ```
+The HuggingFace dataset is downloaded and cached **at Docker build time** (as a `RUN` step in the Dockerfile). No action needed after deployment — every request is served from the pre-built parquet cache in the image.
 
 ### Step 5: Deploy
 
@@ -98,11 +85,12 @@ VITE_API_URL=https://your-app.railway.app
 
 Update the frontend API endpoint in environment variables or source code.
 
-**Option A: Using environment variables**
-Create `frontend/.env.production`:
+**Option A: Using environment variables (required)**
+Set `VITE_API_URL` in the **Vercel dashboard** (Project → Settings → Environment Variables):
 ```
-VITE_API_URL=https://your-railway-backend-url
+VITE_API_URL=https://zomato-milestone-production.up.railway.app
 ```
+> The Vercel dashboard value takes precedence over `frontend/.env.production`. Always set it in the dashboard to avoid stale builds.
 
 **Option B: Update source code**
 If the API URL is hardcoded in the React app, update it in the relevant component.
@@ -170,8 +158,8 @@ vercel --prod
 
 ## Post-Deployment Checklist
 
-- [ ] Backend is accessible at `https://your-railway-url/api/health`
-- [ ] Frontend is accessible at `https://your-vercel-url`
+- [ ] Backend is accessible at `https://zomato-milestone-production.up.railway.app/api/health`
+- [ ] Frontend is accessible at `https://zomato-milestone-ashy.vercel.app`
 - [ ] API requests from frontend reach the backend successfully
 - [ ] CORS is properly configured (should be open to all origins in `api.py`)
 - [ ] Dataset has been cached on Railway (`data/restaurants.parquet`)
@@ -194,14 +182,13 @@ vercel --prod
   cd /app && PYTHONPATH=src uvicorn src.restaurant_recommender.app.api:app --host 0.0.0.0 --port $PORT
   ```
 
-#### 2. Dataset not found or download fails
+#### 2. 502 Bad Gateway on first request
 
-**Cause**: Hugging Face dataset download failed or cache path is incorrect.
+**Cause**: Previously, the HuggingFace dataset downloaded on the first request, causing a timeout or OOM crash. This is now fixed — the dataset is baked into the Docker image at build time.
 
-**Solution**:
-- Check logs for download errors
-- Ensure `CACHE_PATH` points to a writable directory
-- Manually trigger data ingestion or wait for first API call to populate cache
+**If 502 still occurs**:
+- Check Railway deploy logs immediately after the failed request for OOM or exception details
+- Ensure the `RUN python -c "..."` build step completed successfully in the build logs
 
 #### 3. Groq API key error
 
