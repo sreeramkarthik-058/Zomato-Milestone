@@ -38,7 +38,7 @@ EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health').read()"
+    CMD python -c "import urllib.request, os; urllib.request.urlopen(f'http://localhost:{os.environ.get(\"PORT\", 8000)}/api/health').read()"
 
 # Start the application - Python reads PORT env var to avoid shell expansion issues
 CMD python -c "import os; port = int(os.environ.get('PORT', 8000)); import subprocess; subprocess.run(['uvicorn', 'src.restaurant_recommender.app.api:app', '--host', '0.0.0.0', '--port', str(port)])"
