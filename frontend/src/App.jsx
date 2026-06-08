@@ -68,6 +68,8 @@ function App() {
     setAdditionalPrefs(prev => prev ? `${prev} ${randomEnhancement}` : randomEnhancement);
   };
 
+  const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
   // Submit preferences to Python backend FastAPI
   const handleFindTable = async (e) => {
     if (e) e.preventDefault();
@@ -95,7 +97,7 @@ function App() {
     };
 
     try {
-      const response = await fetch('http://localhost:8000/api/recommend', {
+      const response = await fetch(`${apiBaseUrl}/api/recommend`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -122,7 +124,7 @@ function App() {
       }
     } catch (err) {
       console.error(err);
-      setErrorMsg(`Failed to connect to the backend server. Make sure FastAPI is running on port 8000.`);
+      setErrorMsg(`Failed to connect to the backend server. Check that VITE_API_URL is configured and the backend is reachable.`);
       setView('search');
     }
   };
