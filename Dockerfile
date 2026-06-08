@@ -33,6 +33,10 @@ ENV PORT=8000
 # Copy application code
 COPY . .
 
+# Copy and make entrypoint script executable
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+
 # Expose port (Railway sets PORT env var)
 EXPOSE 8000
 
@@ -40,5 +44,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health').read()"
 
-# Start the application - use shell form so env vars are expanded
-CMD sh -c "uvicorn src.restaurant_recommender.app.api:app --host 0.0.0.0 --port ${PORT:-8000}"
+# Start the application via entrypoint script
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
