@@ -39,7 +39,7 @@ EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD python -c "import urllib.request, os; urllib.request.urlopen(f'http://localhost:{os.environ.get(\"PORT\", 8000)}/api/health').read()"
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health').read()"
 
 # Use entrypoint script so uvicorn runs as PID 1 and signals are handled correctly
 CMD ["./docker-entrypoint.sh"]
