@@ -6,10 +6,24 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .env
+.env.local
+.env.*.local
 .cache/
 data/
 *.parquet
 node_modules/
 frontend/dist/
+
+# Deployment & Build artifacts
+.railway/
+.vercel/
+*.log
+dist/
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
 
 .DS_Store
