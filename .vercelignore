@@ -1,0 +1,28 @@
+# Ignore Python backend and related files
+src/
+tests/
+scripts/
+prompts/
+.venv/
+venv/
+__pycache__/
+*.py
+*.pyc
+pytest.ini
+requirements.txt
+Dockerfile
+railway.json
+
+# Ignore git and environment
+.git
+.env
+.env.production
+.env.example
+.gitignore
+
+# Ignore docs
+docs/
+README.md
+
+# Keep only frontend
+!frontend/
