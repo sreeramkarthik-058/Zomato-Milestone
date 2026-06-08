@@ -1,8 +1,8 @@
 # Ignore Python backend and related files
-src/
-tests/
-scripts/
-prompts/
+/src/
+/tests/
+/scripts/
+/prompts/
 .venv/
 venv/
 __pycache__/
@@ -24,5 +24,6 @@ railway.json
 docs/
 README.md
 
-# Keep only frontend
+# Keep frontend directory and its contents
 !frontend/
+!frontend/**
