@@ -1,0 +1,30 @@
+User preferences:
+- location: {{ preferences.location }}
+- budget: {{ preferences.budget.value }}
+- cuisine: {{ preferences.cuisine }}
+- minimum_rating: {{ preferences.min_rating }}
+{% if preferences.additional_preferences %}
+- additional_preferences: {{ preferences.additional_preferences }}
+{% else %}
+- additional_preferences: (none)
+{% endif %}
+
+Candidate restaurants (choose only from this list):
+{{ candidates_json }}
+
+Task:
+1. Rank up to {{ top_n }} restaurants that best match the preferences.
+2. For each pick, explain why it fits (reference location, budget, cuisine, rating, and additional preferences when relevant).
+3. Optionally include a short "summary" of the overall selection.
+
+Return JSON in exactly this shape:
+{
+  "summary": "optional one-paragraph overview or null",
+  "recommendations": [
+    {
+      "restaurant_id": "<id from candidates>",
+      "rank": 1,
+      "explanation": "why this restaurant fits"
+    }
+  ]
+}
