@@ -1,5 +1,5 @@
 # Multi-stage build for optimized image size
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
@@ -27,7 +27,8 @@ COPY --from=builder /root/.local /root/.local
 
 # Make sure scripts in .local are usable
 ENV PATH=/root/.local/bin:$PATH
-ENV PYTHONPATH=/app/src:$PYTHONPATH
+ENV PYTHONPATH=/app/src
+ENV PORT=8000
 
 # Copy application code
 COPY . .
@@ -39,5 +40,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health').read()"
 
-# Start the application
-CMD ["sh", "-c", "uvicorn src.restaurant_recommender.app.api:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Start the application - use shell form so env vars are expanded
+CMD sh -c "uvicorn src.restaurant_recommender.app.api:app --host 0.0.0.0 --port ${PORT:-8000}"
